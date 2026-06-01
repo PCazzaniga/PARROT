@@ -14,7 +14,7 @@ PARROT is a Twitch chatbot that can randomly repeat messages while smartly repla
 
 ### 1. Clone the repository
 ```bash
-> git clone https://github.com/<name>/<repo>.git
+> git clone https://github.com/PCazzaniga/PARROT.git
 > cd repo
 ```
 Alternatively, manually download the files from this repository.
@@ -39,7 +39,7 @@ Optionally, you can also manually change the default values in `parrot_bot\bot_s
 
 ### 4. Run the chatbot
 ```bash
-> python -m <package>
+> python -m parrot_bot
 ```
 Alternatively, run `launch.bat` (Windows) or `launch.sh` (Mac/Linux).
 
