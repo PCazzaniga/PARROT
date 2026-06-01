@@ -1,0 +1,7 @@
+aiohttp
+pydantic>=2.0.0
+pyinflect
+pronouncing
+spacy>=3.0.0
+websockets
+click  # Indirect dependency required by spacy, might be missing from implicit dependencies

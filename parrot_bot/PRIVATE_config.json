@@ -1,0 +1,12 @@
+{
+    "BOT_ACCOUNT_ID" : "0000000",
+    "APP_CLIENT_ID" : "12345abcdef",
+    "APP_CLIENT_SECRET" : "abcdef12345",
+    "CHANNEL_ACCOUNT_ID" : "0000000",
+    "APP_OAUTH_TOKEN" : {
+        "TOKEN" : null,
+        "REFRESH_TOKEN": null,
+        "EXPIRES_AT": null,
+        "FETCHED" : null
+    }
+}

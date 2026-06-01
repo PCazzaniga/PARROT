@@ -1,0 +1,23 @@
+{
+    "REPLACEMENT_WORD" : "word",
+    "INTENSITY" : 50,
+    "WAIT_SECONDS" : 30,
+    "WAIT_MESSAGES" : 10,
+    "NOTARGET_MODE" : true,
+    "VIP_IDS" : [],
+    "IGNORED_IDS" : [],
+    "SPECIAL_CASES" : {
+        "RECURSIVE" : "<WORD>²",
+        "PATTERNS" : [
+        {
+            "MATCH" : "chat",
+            "SAY" : "<WORD> nation"
+        },
+        {
+            "MATCH" : "mods",
+            "SAY" : "fun police"
+        }
+    ]},
+    "ADVANCED_MODE": false,
+    "MAX_TARGET_LENGTH": 120
+}
