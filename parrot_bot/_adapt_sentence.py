@@ -168,8 +168,8 @@ def _quantifier_updates(token: Token, modifiers: _Modifiers, replacement: Form) 
         if det and det.lower_ in _PLURALISH_DETERMINERS and det.lower_ not in _DEMONSTRATIVE_TO_SINGULAR:
             updates[det.i] = match_token_case(det, article)
         for quant in modifiers.quantifier_modifiers:
-            if quant.lower_ in _COUNTABLE_QUANTIFIERS and replacement_is_uncountable:
-                updates[quant.i] = match_token_case(quant, 'much')
+            if quant.lower_ in _COUNTABLE_QUANTIFIERS:
+                updates[quant.i] = match_token_case(quant, 'much' if replacement_is_uncountable else article)
             elif quant.lower_ in _UNCOUNTABLE_QUANTIFIERS and not replacement_is_uncountable:
                 updates[quant.i] = match_token_case(quant, article)
     num = modifiers.number_modifier
