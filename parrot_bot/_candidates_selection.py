@@ -66,7 +66,14 @@ def _is_excluded_subject_structure(token: Token) -> bool:
         return True
     if token.head.dep_ == 'relcl' or token.dep_ in {'csubj', 'appos'}:
         return True
-    return any(child.dep_ == 'appos' for child in token.children)
+    if any(child.dep_ == 'appos' for child in token.children):
+        return True
+    ancestor = token.head
+    while ancestor != ancestor.head:
+        if ancestor.dep_ == 'relcl':
+            return True
+        ancestor = ancestor.head
+    return False
 
 def _is_partitive_head(token: Token) -> bool:
     """Returns whether the token is a partitive head with an 'of' child."""
