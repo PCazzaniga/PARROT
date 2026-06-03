@@ -155,8 +155,8 @@ def _quantifier_updates(token: Token, modifiers: _Modifiers, replacement: Form) 
     replacement_is_uncountable = _is_uncountable_word(replacement.text)
     article = 'some' if replacement_is_uncountable else get_indefinite_article(replacement.text)
     if replacement.is_plural:
-        # Singular-ish determiners conflict with a plural replacement
-        if det and det.lower_ in _SINGULARISH_DETERMINERS:
+        # Singular-ish determiners conflict with a plural replacement (excludes demonstratives, handled by _article_update)
+        if det and det.lower_ in _SINGULARISH_DETERMINERS and det.lower_ not in _DEMONSTRATIVE_TO_PLURAL:
             updates[det.i] = match_token_case(det, 'some')
         for quant in modifiers.quantifier_modifiers:
             if quant.lower_ in _UNCOUNTABLE_QUANTIFIERS:
