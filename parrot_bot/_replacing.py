@@ -111,6 +111,15 @@ def replace_elements(
         replacements[token.i] = replacement_text
         replacements.update(extra_updates)
         no_replacement_applied = False
+    for t in caches.analysis.doc:
+        # Restore coordination conjunctions (e.g. and) if the coordinated elements were both replaced separately
+        if t.dep_ == 'cc' and replacements.get(t.i) == '':
+            if t.head.i in replacements and any(
+                child.i in replacements
+                for child in t.head.children
+                if child.dep_ == 'conj'
+            ):
+                replacements[t.i] = t.text
     # Uses merged dictionary, to look in both at once
     # Regular replacements technically get priority, but candidates do not overlap so this is fine
     merged = {**specials_ch.replacements, **replacements}
