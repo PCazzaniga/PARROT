@@ -61,7 +61,9 @@ def _detect_subject_candidate(token: Token) -> Token | None:
     return None
 
 def _is_excluded_subject_structure(token: Token) -> bool:
-    """Determines whether the token is a relative clause, clausal subject or appositonal structure"""
+    """Determines whether the token is a subject gerund, relative clause, clausal subject or appositonal structure"""
+    if token.tag_ == 'VBG' and token.dep_ in SUBJECT_TAGS:
+        return True
     if token.head.dep_ == 'relcl' or token.dep_ in {'csubj', 'appos'}:
         return True
     return any(child.dep_ == 'appos' for child in token.children)
