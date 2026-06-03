@@ -60,20 +60,24 @@ def _detect_subject_candidate(token: Token) -> Token | None:
         return token
     return None
 
-def _is_excluded_subject_structure(token: Token) -> bool:
-    """Determines whether the token is a subject gerund, relative clause, clausal subject or appositonal structure"""
-    if token.tag_ == 'VBG' and token.dep_ in SUBJECT_TAGS:
-        return True
-    if token.head.dep_ == 'relcl' or token.dep_ in {'csubj', 'appos'}:
-        return True
-    if any(child.dep_ == 'appos' for child in token.children):
-        return True
+def _is_inside_relative_clause(token: Token) -> bool:
+    """Returns True if the token is inside a relative clause at any depth"""
     ancestor = token.head
     while ancestor != ancestor.head:
         if ancestor.dep_ == 'relcl':
             return True
         ancestor = ancestor.head
     return False
+
+def _is_excluded_subject_structure(token: Token) -> bool:
+    """Determines whether the token is a subject gerund, relative clause, clausal subject or appositonal structure"""
+    if token.tag_ == 'VBG' and token.dep_ in SUBJECT_TAGS:
+        return True
+    if token.dep_ in {'csubj', 'appos'}:
+        return True
+    if any(child.dep_ == 'appos' for child in token.children):
+        return True
+    return _is_inside_relative_clause(token)
 
 def _is_partitive_head(token: Token) -> bool:
     """Returns whether the token is a partitive head with an 'of' child."""
@@ -94,6 +98,7 @@ def get_replacement_candidates(doc: Doc) -> list[Token]:
             if (not (candidate.pos_ == 'PRON' and candidate.lower_ in _OBJ_PRONOUNS)
                 and candidate.i not in seen
                 and not _is_partitive_head(candidate)       # For constructs like "a piece of X" only X should be replaceable
+                and not _is_inside_relative_clause(candidate)   # For objects of relative clauses, e.g. "that" in "The X that..."
             ):
                 seen.add(candidate.i)
                 candidates.append(candidate)
