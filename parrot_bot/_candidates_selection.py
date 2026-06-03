@@ -71,7 +71,12 @@ def _is_inside_relative_clause(token: Token) -> bool:
 
 def _is_excluded_subject_structure(token: Token) -> bool:
     """Determines whether the token is a subject gerund, relative clause, clausal subject or appositonal structure"""
-    if token.tag_ == 'VBG' and token.dep_ in SUBJECT_TAGS:
+    # Heuristic, if it's tagged as a noun but ends with -ing and has no determiners, it is likely a mistagged gerund
+    if (token.tag_ == 'NN'
+        and token.dep_ in SUBJECT_TAGS
+        and token.lower_.endswith('ing')
+        and not any(child.dep_ == 'det' for child in token.children)
+    ):
         return True
     if token.dep_ in {'csubj', 'appos'}:
         return True
