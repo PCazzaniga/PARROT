@@ -115,7 +115,7 @@ def replace_elements(
     # Regular replacements technically get priority, but candidates do not overlap so this is fine
     merged = {**specials_ch.replacements, **replacements}
     return ''.join(
-        text + t.whitespace_
+        text + (t.whitespace_ if text else '')
         for t in caches.analysis.doc
         # This check assigns the appropriate replacement string but also skips empty strings
         # (e.g. from multi-token special matches)
