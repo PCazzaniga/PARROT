@@ -14,7 +14,6 @@ _KEYWORD_S = "banana"   # singular keyword
 _KEYWORD_P = "bananas"  # plural keyword
 
 _tests = [
-
     # Basic object replacement
     ("basic singular direct object", "I love this game", _KEYWORD_S, 100, _ADAPT, "I love this banana"),
     ("basic plural direct object, keyword adapts to plural", "I love cats", _KEYWORD_S, 100, _ADAPT, "I love bananas"),
@@ -127,14 +126,7 @@ _tests = [
     ("lowercase preserved", "I want a cookie", _KEYWORD_S, 100, _ADAPT, "I want a banana"),
     ("uppercase preserved, sentence adapts", "I want some COFFEE", _KEYWORD_S, 100, _PRESERVE, "I want a BANANA"),
     ("capitalization transferred from removed article, sentence adapts", "A cat is sleeping", _KEYWORD_P, 100, _PRESERVE, "Bananas are sleeping"),
-
 ]
-
-def _debug_parse(sentence: str):
-    doc = get_pipeline()(sentence)
-    print(f"       Parse: {sentence}")
-    for token in doc:
-        print(f"              {token.text:<15} dep={token.dep_:<12} tag={token.tag_:<8} pos={token.pos_:<8} head={token.head.text}")
 
 if __name__ == '__main__':
     passed = 0
@@ -149,12 +141,11 @@ if __name__ == '__main__':
         except Exception as e:
             actual = f"ERROR: {e}"
         ok = actual == expected
-        status = "PASS" if ok else "FAIL"
         if ok:
             passed += 1
         else:
             failed += 1
-        print(f"[{status}] {description}")
+        print(f"[{"PASS" if ok else "FAIL"}] {description}")
         if not ok:
             print(f"       input:    {sentence}")
             print(f"       keyword:  {keyword} ({'adapt-word' if adapt else 'adapt-sentence'})")
