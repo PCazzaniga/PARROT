@@ -155,8 +155,8 @@ def _quantifier_updates(token: Token, modifiers: _Modifiers, replacement: Form) 
     replacement_is_uncountable = _is_uncountable_word(replacement.text)
     article = 'some' if replacement_is_uncountable else get_indefinite_article(replacement.text)
     if replacement.is_plural:
-        # Singular-ish determiners conflict with a plural replacement
-        if det and det.lower_ in _SINGULARISH_DETERMINERS:
+        # Singular-ish determiners conflict with a plural replacement (excludes demonstratives, handled by _article_update)
+        if det and det.lower_ in _SINGULARISH_DETERMINERS and det.lower_ not in _DEMONSTRATIVE_TO_PLURAL:
             updates[det.i] = match_token_case(det, 'some')
         for quant in modifiers.quantifier_modifiers:
             if quant.lower_ in _UNCOUNTABLE_QUANTIFIERS:
@@ -168,8 +168,8 @@ def _quantifier_updates(token: Token, modifiers: _Modifiers, replacement: Form) 
         if det and det.lower_ in _PLURALISH_DETERMINERS and det.lower_ not in _DEMONSTRATIVE_TO_SINGULAR:
             updates[det.i] = match_token_case(det, article)
         for quant in modifiers.quantifier_modifiers:
-            if quant.lower_ in _COUNTABLE_QUANTIFIERS and replacement_is_uncountable:
-                updates[quant.i] = match_token_case(quant, 'much')
+            if quant.lower_ in _COUNTABLE_QUANTIFIERS:
+                updates[quant.i] = match_token_case(quant, 'much' if replacement_is_uncountable else article)
             elif quant.lower_ in _UNCOUNTABLE_QUANTIFIERS and not replacement_is_uncountable:
                 updates[quant.i] = match_token_case(quant, article)
     num = modifiers.number_modifier
@@ -187,6 +187,28 @@ def _quantifier_updates(token: Token, modifiers: _Modifiers, replacement: Form) 
                 if dependent.i != num.i:
                     updates[dependent.i] = ''
     return updates
+
+def _update_carrier(verb: Token, want_plural: bool) -> tuple[int, str] | None:
+    """Returns the update necessary to match a single finite verb to the desired plurality"""
+    lemma = verb.lemma_.lower()
+    # "be" is the only verb that cares about past tense (VBD)
+    if lemma == 'be':
+        if verb.tag_ == 'VBD':
+            return (verb.i, match_token_case(verb, 'were' if want_plural else 'was'))
+        return (verb.i, match_token_case(verb, 'are' if want_plural else 'is'))
+    # "have" and "do" have immediate inflections
+    if lemma == 'have' and verb.tag_ != 'VBD':
+        return (verb.i, match_token_case(verb, 'have' if want_plural else 'has'))
+    if lemma == 'do' and verb.tag_ != 'VBD':
+        return (verb.i, match_token_case(verb, 'do' if want_plural else 'does'))
+    # For all other [present-tense] lexical verbs, use pyinflect
+    if verb.tag_ in {'VBZ', 'VBP'}:
+        target_tag = 'VB' if want_plural else 'VBZ'
+        inflected = pyinflect.getInflection(lemma, target_tag)
+        if inflected:
+            return (verb.i, match_token_case(verb, inflected[0]))
+    # If nothing was found leave the verb untouched
+    return None
 
 def _verb_agreement_updates(token: Token, replacement: Form) -> dict[int, str]:
     """Returns the updates necessary to match verb tokens to the token replacement"""
@@ -210,32 +232,16 @@ def _verb_agreement_updates(token: Token, replacement: Form) -> dict[int, str]:
     carrier = min(finite_aux, key=lambda t: t.i) if finite_aux else None
     if carrier is None and head.tag_ in {'VBZ', 'VBP', 'VBD'}:
         carrier = head
-    if carrier is None:
-        return updates
-    lemma = carrier.lemma_.lower()
-    # "be" is the only verb that cares about past tense (VBD)
-    if lemma == 'be':
-        if carrier.tag_ == 'VBD':
-            updates[carrier.i] = match_token_case(carrier, 'were' if want_plural else 'was')
-        else:
-            updates[carrier.i] = match_token_case(carrier, 'are' if want_plural else 'is')
-        return updates
-    # "have" and "do" have immediate inflections
-    if lemma == 'have':
-        if carrier.tag_ != 'VBD':
-            updates[carrier.i] = match_token_case(carrier, 'have' if want_plural else 'has')
-        return updates
-    if lemma == 'do':
-        if carrier.tag_ != 'VBD':
-            updates[carrier.i] = match_token_case(carrier, 'do' if want_plural else 'does')
-        return updates
-    # For all other [present-tense] lexical verbs, use pyinflect
-    if carrier.tag_ in {'VBZ', 'VBP'}:
-        target_tag = 'VB' if want_plural else 'VBZ'
-        inflected = pyinflect.getInflection(lemma, target_tag)
-        if inflected:
-            updates[carrier.i] = match_token_case(carrier, inflected[0])
-    # If nothing was found leave the verb untouched
+    if carrier is not None:
+        update = _update_carrier(carrier, want_plural)
+        if update:
+            updates[update[0]] = update[1]
+    # Also update coordinated verbs (e.g. "were loud and are annoying")
+    for child in head.children:
+        if child.dep_ == 'conj' and child.pos_ in {'AUX', 'VERB'} and child.tag_ in {'VBZ', 'VBP', 'VBD'}:
+            update = _update_carrier(child, want_plural)
+            if update:
+                updates[update[0]] = update[1]
     return updates
 
 def replace_token(token: Token, word_form: Form) -> tuple[str, dict[int, str]]:
