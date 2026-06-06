@@ -2,7 +2,7 @@
 **P**hrase **A**ltering & **R**epeating **R**obot **O**n **T**witch
 
 ## About
-PARROT is a Twitch chatbot that can randomly repeat messages while smartly replacing grammatical subjects and objects for humour and entertainment, inspired by the late [buttsbot](http://www.twitch.tv/buttsbot).
+PARROT is a single-channel Twitch chatbot that can randomly repeat messages while smartly replacing grammatical subjects and objects for humour and entertainment, inspired by the late [buttsbot](http://www.twitch.tv/buttsbot).
 
 ## Installation
 
@@ -28,20 +28,26 @@ Alternatively, run `setup.bat` (Windows) or `setup.sh` (Mac/Linux).
 
 ### 3. Configure the chatbot
 Change the following values in `parrot_bot\PRIVATE_config.json`:  
- - BOT_ACCOUNT_ID: numeric User ID of the chatbot's Twitch account (you can get it using online tools like [this](https://streamcharts.com/tools/convert-username)).  
+ - BOT_ACCOUNT_ID: numeric User ID of the chatbot's Twitch account.  
  - APP_CLIENT_ID: alphanumeric Client ID of the registered Twitch application.  
  - APP_CLIENT_SECRET: alphanumeric Client Secret of the registered Twitch application.
- - CHANNEL_ACCOUNT_ID: numeric User ID of the Twitch channel the chatbot will operate in.
+ - CHANNEL_ACCOUNT_ID: numeric User ID of the Twitch account whose channel the chatbot will operate in.
+
+You can get the ID of a Twitch account from its username using online tools such as [this](https://streamscharts.com/tools/convert-username).
 
 (Please note that `PRIVATE_config.json` will contain sensitive information of your application and should never be disclosed !)
 
-Optionally, you can also manually change the default values in `parrot_bot\bot_settings.json` but that can be done later directly using the application.
+Optionally, you can also manually change the default values in `parrot_bot\bot_settings.json` but that can be done later using the application directly (see [below](#usage)).
 
 ### 4. Run the chatbot
 ```bash
 > python -m parrot_bot
 ```
 Alternatively, run `launch.bat` (Windows) or `launch.sh` (Mac/Linux).
+
+This is the only step that needs to be repeated everytime the chatbot is shut down.
+
+(For those interested, the above command also supports a `--debug` option to display information for debugging and troubleshooting)
 
 ### 5. Authorize the chatbot
 On the very first run, the application will need to get a token from Twitch and will print a URL in the console.  
@@ -51,7 +57,7 @@ The token will then be saved automatically to the configuration file.
 ## Usage
 
 Once the chatbot is running it will listen to the stream chat and occasionally select a message to modify and repeat.  
-For example, an user may send:
+For example, a user may send:
 ```
 I love this videogame !!!
 ```
@@ -78,7 +84,7 @@ From the chat itself the channel owner, its moderators and selected users can cu
  All of these settings are automatically saved in `bot_settings.json` to persist when the chatbot goes offline.  
 
  ---
- Additionally, there are some settings that can only be customized by manually modifying `bot_settings.json`, namely special hardcoded, case-sensitive, replacements that will always be performed if found in a selected message:
+ Additionally, there are some settings that can only be customized by manually modifying `bot_settings.json`, namely special hardcoded replacements that will always be performed if their match (case-sensitive) is found in a selected message:
  - RECURSIVE to set the replacement text for when the current keyword itself is found in a sentence.
  - PATTERNS to set any "original" - "replacement" pairs of text.  
  
