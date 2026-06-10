@@ -17,7 +17,7 @@ PARROT is a single-channel Twitch chatbot that can randomly repeat messages whil
 > git clone https://github.com/PCazzaniga/PARROT.git
 > cd repo
 ```
-Alternatively, manually download the files from this repository.
+Alternatively, manually [download](https://github.com/PCazzaniga/PARROT/archive/refs/heads/main.zip) the files from this repository.
 
 ### 2. Install dependencies
 ```bash
